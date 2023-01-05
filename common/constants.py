@@ -1,8 +1,13 @@
 """
 Set of definitions regarding shape files for plotting and MeteoSwiss radars
 """
+import os
+
 import shapefile as shp
 import rasterio
+
+main_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+dir = os.path.join(main_dir,"shapes")
 
 ###############
 # RADARS
@@ -22,8 +27,8 @@ ELEVATIONS = [-0.2, 0.4, 1, 1.6, 2.5, 3.5, 4.5, 5.5, 6.5,
 ###############
 
 # directories
-terrainBgFile = "/scratch/nrombeek/expertise/shapes/ch_n30e000.tif"
-demFile = "/scratch/nrombeek/expertise/shapes/swisstopo_DHM25_MONA_DTED_lv95.tif"
+terrainBgFile = os.path.join(dir, "ch_n30e000.tif")
+demFile = os.path.join(dir,"swisstopo_DHM25_MONA_DTED_lv95.tif")
 
 # read raster files
 TERRAINBG = rasterio.open(terrainBgFile)
@@ -32,6 +37,6 @@ TERRAIN = DEM.read(1)
 TERRAIN[TERRAIN == TERRAIN.min()] = 0
 
 # read shape files
-SF = shp.Reader("/scratch/nrombeek/expertise/shapes/swiss.shp")
-RIVERS = shp.Reader("/scratch/nrombeek/expertise/shapes/r1.shp")
-CHLAKES = shp.Reader("/scratch/nrombeek/expertise/shapes/chlakes.shp")
+SF = shp.Reader(os.path.join(dir,"swiss.shp"))
+RIVERS = shp.Reader(os.path.join(dir,"r1.shp"))
+CHLAKES = shp.Reader(os.path.join(dir,"chlakes.shp"))
