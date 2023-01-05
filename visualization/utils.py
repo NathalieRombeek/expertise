@@ -9,12 +9,12 @@ from scipy.ndimage import uniform_filter
 from utils.transformation import coordx2ind, coordy2ind
 #
 
-main_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+dir = os.path.abspath(os.path.join(os.path.dirname(__file__)))
 
 
 # Definitions
-colorscale = os.path.join(main_dir, "8bit_CPC_py.txt")
-colorscale_rzc = os.path.join(main_dir, "8bit_Metranet_v103_py.txt")
+colorscale = os.path.join(dir, "8bit_CPC_py.txt")
+colorscale_rzc = os.path.join(dir, "8bit_Metranet_v103_py.txt")
 
 def getRainscale(colorscale):
     """
