@@ -5,25 +5,46 @@ from tools.main_expertise import make_expertise
 
 DIR = os.path.abspath(os.path.dirname(__file__))
 
+
 def run_expertise(
     date,
     product,
-    file_dir="/scratch/nrombeek/expertise_package/example/2022196_saettele",*rg_args,**opt_kwargs,
+    file_dir,
+    *rg_args,
+    **opt_kwargs,
 ):
     try:
-        opt_kwargs=opt_kwargs['opt_kwargs']
+        opt_kwargs = opt_kwargs["opt_kwargs"]
     except KeyError:
-        opt_kwargs={}
+        opt_kwargs = {}
+
+    if "POHfiles" in opt_kwargs.keys():
+        POHfiles = opt_kwargs["POHfiles"]
+    else:
+        POHfiles = False
+
+    if "POHSingleFiles" in opt_kwargs.keys():
+        POHSingleFiles = opt_kwargs["POHSingleFiles"]
+    else:
+        POHSingleFiles = False
 
     # 1. Retrieve input
-    outDir = retrieve_input_data(date, product="RZC", file_dir=file_dir)
+    outDir = retrieve_input_data(
+        date,
+        file_dir=file_dir,
+        product=product,
+        get_daily_POH=POHfiles,
+        get_single_POH=POHSingleFiles,
+    )
 
     os.chdir(outDir)
 
     # 2. run the shell script using subprocess.run
-    if os.path.exists(os.path.join(outDir,"totalroi.bin")) and os.path.exists(os.path.join(outDir,"totalroi.json")):
+    if os.path.exists(os.path.join(outDir, "totalroi.bin")) and os.path.exists(
+        os.path.join(outDir, "totalroi.json")
+    ):
         print("totalroi already exists in this folder")
-        
+
     else:
         bashCommand = f"{DIR}/expertise.sh {DIR} {outDir} {product}"
         result = subprocess.run([bashCommand], shell=True, check=True)
@@ -35,44 +56,34 @@ def run_expertise(
             print("Script failed with return code {}".format(result.returncode))
 
     if "singleFiles" in opt_kwargs.keys():
-        singleFiles=opt_kwargs['singleFiles']
+        singleFiles = opt_kwargs["singleFiles"]
     else:
-        singleFiles=False
-
-    if "POHfiles" in opt_kwargs.keys():
-        POHfiles=opt_kwargs['POHfiles']
-    else:
-        POHfiles=False
-
-    if "POHSingleFiles" in opt_kwargs.keys():
-        POHSingleFiles=opt_kwargs['POHSingleFiles']
-    else:
-        POHSingleFiles=False
+        singleFiles = False
 
     if "roiMap" in opt_kwargs.keys():
-        roiMap=opt_kwargs['roiMap']
+        roiMap = opt_kwargs["roiMap"]
     else:
-        roiMap=False
+        roiMap = False
 
     if "visibMap" in opt_kwargs.keys():
-        visibMap=opt_kwargs['visibMap']
+        visibMap = opt_kwargs["visibMap"]
     else:
-        visibMap=False
+        visibMap = False
 
     if "useOsm" in opt_kwargs.keys():
-        useOsm=opt_kwargs['useOsm']
+        useOsm = opt_kwargs["useOsm"]
     else:
-        useOsm=False
+        useOsm = False
 
     if "useOsmSingleFiles" in opt_kwargs.keys():
-        useOsmSingleFiles=opt_kwargs['useOsmSingleFiles']
+        useOsmSingleFiles = opt_kwargs["useOsmSingleFiles"]
     else:
-        useOsmSingleFiles=False
+        useOsmSingleFiles = False
 
     if "make_kml_file" in opt_kwargs.keys():
-        make_kml_file=opt_kwargs['make_kml_file']
+        make_kml_file = opt_kwargs["make_kml_file"]
     else:
-        make_kml_file=False
+        make_kml_file = False
 
     # 3. run expertise
     make_expertise(
