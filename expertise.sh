@@ -1,9 +1,9 @@
 #!/usr/local/bin/bash
 
-product=$1
+workDir=$1
 outDir=$2
-rg1=$3
-rg2=$4
+product=$3
+
 #SBATCH --mail-user=nathalie.rombeek@meteoswiss.ch
 #SBATCH --job-name=expertise_nr
 #SBATCH --mail-type=FAIL
@@ -15,11 +15,4 @@ rg2=$4
 #SBATCH --output=expertise.log
 #SBATCH --error=expertise.err
 
-SOURCE=${BASH_SOURCE[0]}
-workDir=$( dirname "$SOURCE" )
-printf '%s\n' "SOURCE=$( dirname "$SOURCE" )"
-
 $workDir/pexp $outDir/$product/
-conda activate hydrexp
-python3 $workDir/main_expertise.py $product $outDir $rg1 $rg2
-
