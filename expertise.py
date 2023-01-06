@@ -14,7 +14,7 @@ def run_expertise(
     **opt_kwargs,
 ):
     """
-    Run the expertise script to generate data and plots for a given date and product (RZC or CPC).
+    Run the expertise script to retrieve data and generate plots for a given date and product (RZC or CPC).
 
     Args:
     -----
