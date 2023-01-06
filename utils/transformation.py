@@ -7,6 +7,7 @@ import math
 import numpy as np
 from numba import jit
 
+
 @jit
 def coordx2ind(coordx):
     x = (coordx - 2255000) / 1000
@@ -42,28 +43,32 @@ def beamHeight(R, elevation, radarHeight=0, earthRadius=6347):
 
 def fname2timestring(fname, newline=True):
     bname = fname.split(os.path.sep)[-1].split(os.path.sep)[-1]
-    year = '20'+bname[3:5]
+    year = "20" + bname[3:5]
     day = bname[5:8]
     hour = bname[8:10]
     minute = bname[10:12]
-    time = datetime.strptime(year + ' ' + day, '%Y %j')
+    time = datetime.strptime(year + " " + day, "%Y %j")
     if newline:
-        dtstring = time.strftime('%d-%m-%Y')+"\n"+hour+":"+minute+"UTC"
+        dtstring = time.strftime("%d-%m-%Y") + "\n" + hour + ":" + minute + "UTC"
     else:
-        dtstring = time.strftime('%d-%m-%Y')+" "+hour+":"+minute+"UTC"
-    return (dtstring)
+        dtstring = time.strftime("%d-%m-%Y") + " " + hour + ":" + minute + "UTC"
+    return dtstring
 
 
 def get_file_str(name):
     """
-    Get a dict with information such as date, time product from the filename
-    
+    Extracts information such as date, time, and productname from a file name with the format "prdYYDOYHHMM*".
+
+    Args:
+    -----
     name: str
-     file name with structure prdYYDOYHHMM*
+     File name with structure "prdYYDOYHHMM*".
 
     Returns:
+    --------
     file_info: dict
-     containing information about date, time, product and name of specific file
+     A dictionary containing information about the file
+
     """
     file_info = {
         "bname": name,
@@ -73,11 +78,12 @@ def get_file_str(name):
         "hour": name[8:10],
         "minute": name[10:12],
         "time": datetime.strptime("20" + name[3:5] + " " + name[5:8], "%Y %j"),
-        "date": datetime.strptime("20" + name[3:5] + name[5:8] + name[8:10] + name[10:12], "%Y%j%H%M"),
+        "date": datetime.strptime(
+            "20" + name[3:5] + name[5:8] + name[8:10] + name[10:12], "%Y%j%H%M"
+        ),
         "eventCodeName": name[0:8],
     }
     return file_info
-
 
 
 def nearest_5min(df):
@@ -88,7 +94,7 @@ def nearest_5min(df):
     -----
     df: DataFrame
      Dataframe containing time column
-    
+
     Returns:
     df: DataFrame
      Dataframe with min rounded to 5 min.
@@ -106,7 +112,7 @@ def nearest_5min(df):
     return df
 
 
-def make_timeserie(bname,fname):
+def make_timeserie(bname, fname):
     """
     Makes a timeserie of the event with a 5-min interval
 
@@ -116,13 +122,39 @@ def make_timeserie(bname,fname):
      containing start date and time of the event
     fname: dict
      containing end time of the event
-    
+
     Returns:
     --------
     timeserie: ndarray
      containing timeseries with 5-min interval
     """
-    
-    n_incr = int((fname['date'] - bname['time']).total_seconds() / (60 * 5))
-    timeserie = bname['time'] + np.array([timedelta(minutes=5*i)  for i in range(n_incr + 1)])
+
+    n_incr = int((fname["date"] - bname["time"]).total_seconds() / (60 * 5))
+    timeserie = bname["time"] + np.array(
+        [timedelta(minutes=5 * i) for i in range(n_incr + 1)]
+    )
     return timeserie
+
+
+def make_rg(label, depth, chx, chy):
+    """
+    makes a dictionary of the rain gauge
+
+    Args:
+    -----
+    label: str
+     label of the specific raingauge
+    depth: float
+     rainfall depth (mm) measured by raingauge
+    chx: int
+     xcoordinate of raingauge
+    chy: int
+     ycoordinate of raingauge
+
+    Returns:
+    rg: dict
+     dictionary containing raingauge name, location and corresponding rainfall depth (mm)
+    """
+
+    rg = {"label": label, "depth": depth, "chx": chx, "chy": chy}
+    return rg
