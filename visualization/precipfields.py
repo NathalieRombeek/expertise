@@ -219,7 +219,7 @@ def make_avg_zoom(region, outDir, useOsm=False):
     )
 
 
-def make_sum_zoom(region, outDir, useOsm=False, unit="mm", **rg_kwargs):
+def make_sum_zoom(region, outDir, useOsm=False, unit="mm", *rg_kwargs):
     cmap16, norm = _get_colours(COLOURS_SUM)
     bounds, ticklabels = _get_tick_bounds()
     bname = region.bname
@@ -297,28 +297,27 @@ def make_sum_zoom(region, outDir, useOsm=False, unit="mm", **rg_kwargs):
             lw=1,
         )
     )
-    if "rain_gauges" in rg_kwargs.keys():
-        rain_gauges = rg_kwargs["rain_gauges"]
-        for rain_gauge in rain_gauges:
-            idx_col = find_nearest(BOUNDS_AVG, rain_gauge["depth"])
-            rg_col = COLOURS_AVG[idx_col]
-            ax.scatter(
-                rain_gauge["chx"],
-                rain_gauge["chy"],
-                marker="o",
-                color=rg_col,
-                s=460,
-                linewidth=1.5,
-                edgecolors="k",
-            )
-            ax.annotate(
-                rain_gauge["label"],
-                xy=(rain_gauge["chx"], rain_gauge["chy"] + 500),
-                fontsize=18,
-                color="white",
-                path_effects=[pe.withStroke(linewidth=2, foreground="black")],
-                fontweight="bold",
-            )
+
+    for rain_gauge in rg_kwargs:
+        idx_col = find_nearest(BOUNDS_AVG, rain_gauge["depth"])
+        rg_col = COLOURS_AVG[idx_col]
+        ax.scatter(
+            rain_gauge["chx"],
+            rain_gauge["chy"],
+            marker="o",
+            color=rg_col,
+            s=460,
+            linewidth=1.5,
+            edgecolors="k",
+        )
+        ax.annotate(
+            rain_gauge["label"],
+            xy=(rain_gauge["chx"], rain_gauge["chy"] + 500),
+            fontsize=18,
+            color="white",
+            path_effects=[pe.withStroke(linewidth=2, foreground="black")],
+            fontweight="bold",
+        )
 
     divider = make_axes_locatable(ax)
     cax = divider.append_axes("right", size="5%", pad=0.5)
