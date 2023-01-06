@@ -19,8 +19,22 @@ terrain = constants.TERRAIN
 sf = constants.SF
 
 
-def make_visibMap(region,outDir):
-    outFile = outDir + "/" + region.bname['eventCodeName'] + "-radars.png"
+def make_visibMap(region, outDir):
+    """
+    Creates a visibility map of the radars together and seperated.
+
+    Args:
+    -----
+    region: object
+     An object representing the region.
+    outDir: str
+     Directory where the visibility map needs to be saved
+
+    Returns:
+    --------
+    None
+    """
+    outFile = outDir + "/" + region.bname["eventCodeName"] + "-radars.png"
     fig, ax = plt.subplots(figsize=(20, 20))
     plt.imshow(
         terrainBg.read(1),
@@ -196,6 +210,5 @@ def make_visibMap(region,outDir):
             for shape in sf.shapeRecords():
                 plotShapefile(shape.shape, "white", linewidth=2.0, ax=axs[0])
 
-            # axs[0].plot(x, y, 'o', markersize=4, color="green") # for debug
             fig.savefig(outFile)
             plt.close(fig)
