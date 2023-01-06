@@ -13,6 +13,7 @@ import matplotlib.colors as mcolors
 import matplotlib
 import matplotlib.patheffects as pe
 from matplotlib.patches import Rectangle
+
 matplotlib.use("Agg")  # to plot without X window
 from shapely.geometry import Polygon
 
@@ -27,26 +28,109 @@ chlakes = constants.CHLAKES
 terrain = constants.TERRAIN
 terrainBg = constants.TERRAINBG
 
-COLOURS_AVG = ["#00000088", "#FFFFFFFF", "#D3EBFFFF", "#E9D7F3FF", "#9D7F95FF", "#650165FF", "#AF01AFFF", "#3232C8FF", "#0064FFFF", "#009696FF","#00C832FF","#64FF00FF","#96FF00FF","#C8FF32FF","#FFFF00FF","#FFC800FF", "#FFA000FF","#FF7D00FF","#E11901FF"]
-COLOURS_SUM = ["#000000FF", "#FFFFFFFF", "#E9D7F3FF", "#9D7F95FF", "#650165FF", "#AC02ACFF", "#3232C8FF", "#0064FFFF", "#009696FF","#00C832FF","#64FF00FF","#96FF00FF","#C8FF32FF","#FFFF00FF","#FFC800FF","#FFA000FF","#FF7D00FF","#E11901FF", "#C10101FF", "#9F0101FF"]
-BOUNDS_AVG = [-9999,-0.1,0.01, 0.08,0.16,0.25,0.4,0.63,1.0,1.6,2.5,4.0,6.3,10,16,25,40,63,100,999]
-TICKLABELS_AVG = ['NA','0','wet', '0.08','0.16','0.25','0.40','0.63','1.0','1.6','2.5','4.0','6.3','10','16','25','40','63','100','']
+COLOURS_AVG = [
+    "#00000088",
+    "#FFFFFFFF",
+    "#D3EBFFFF",
+    "#E9D7F3FF",
+    "#9D7F95FF",
+    "#650165FF",
+    "#AF01AFFF",
+    "#3232C8FF",
+    "#0064FFFF",
+    "#009696FF",
+    "#00C832FF",
+    "#64FF00FF",
+    "#96FF00FF",
+    "#C8FF32FF",
+    "#FFFF00FF",
+    "#FFC800FF",
+    "#FFA000FF",
+    "#FF7D00FF",
+    "#E11901FF",
+]
+COLOURS_SUM = [
+    "#000000FF",
+    "#FFFFFFFF",
+    "#E9D7F3FF",
+    "#9D7F95FF",
+    "#650165FF",
+    "#AC02ACFF",
+    "#3232C8FF",
+    "#0064FFFF",
+    "#009696FF",
+    "#00C832FF",
+    "#64FF00FF",
+    "#96FF00FF",
+    "#C8FF32FF",
+    "#FFFF00FF",
+    "#FFC800FF",
+    "#FFA000FF",
+    "#FF7D00FF",
+    "#E11901FF",
+    "#C10101FF",
+    "#9F0101FF",
+]
+BOUNDS_AVG = [
+    -9999,
+    -0.1,
+    0.01,
+    0.08,
+    0.16,
+    0.25,
+    0.4,
+    0.63,
+    1.0,
+    1.6,
+    2.5,
+    4.0,
+    6.3,
+    10,
+    16,
+    25,
+    40,
+    63,
+    100,
+    999,
+]
+TICKLABELS_AVG = [
+    "NA",
+    "0",
+    "wet",
+    "0.08",
+    "0.16",
+    "0.25",
+    "0.40",
+    "0.63",
+    "1.0",
+    "1.6",
+    "2.5",
+    "4.0",
+    "6.3",
+    "10",
+    "16",
+    "25",
+    "40",
+    "63",
+    "100",
+    "",
+]
 
 matplotlib.rc("xtick", labelsize=14)
 matplotlib.rc("ytick", labelsize=14)
 
 
-def make_avg_zoom(region,outDir, useOsm=False):
-    cmap,norm = _get_colours(COLOURS_AVG,BOUNDS_AVG)
-    bname =  region.bname
+def make_avg_zoom(region, outDir, useOsm=False):
+    cmap, norm = _get_colours(COLOURS_AVG, BOUNDS_AVG)
+    bname = region.bname
     fname = region.fbname
     if useOsm:
         import osmnx as ox
     if useOsm and exists("osmdata_water.shp"):
         osm_water_lv95 = shp.Reader("osmdata_water.shp")
-    
-    outFile = outDir + "/" + bname['eventCodeName'] + "-avg-zoom.png"
-    
+
+    outFile = outDir + "/" + bname["eventCodeName"] + "-avg-zoom.png"
+
     fig, ax = plt.subplots(figsize=(20, 20))
     cs = plt.imshow(
         terrain,
@@ -66,19 +150,19 @@ def make_avg_zoom(region,outDir, useOsm=False):
         + " ["
         + str(int(region.surfacekm2))
         + " km\u00b2]\nfrom: "
-        + bname['time'].strftime("%d/%m/%Y")
+        + bname["time"].strftime("%d/%m/%Y")
         + " "
-        + bname['hour']
+        + bname["hour"]
         + ":"
-        + bname['minute']
+        + bname["minute"]
         + "UTC to: "
-        + fname['time'].strftime("%d/%m/%Y")
+        + fname["time"].strftime("%d/%m/%Y")
         + " "
-        + fname['hour']
+        + fname["hour"]
         + ":"
-        + fname['minute']
+        + fname["minute"]
         + "UTC, product = "
-        + bname['prd'],
+        + bname["prd"],
         fontsize=26,
     )
     plt.plot()
@@ -118,7 +202,7 @@ def make_avg_zoom(region,outDir, useOsm=False):
     cax = divider.append_axes("right", size="5%", pad=0.5)
     cbar = plt.colorbar(boundaries=BOUNDS_AVG, ticks=BOUNDS_AVG, cax=cax, extend="max")
     cbar.ax.set_yticklabels(TICKLABELS_AVG)
-    if bname['prd'] == "AQC":
+    if bname["prd"] == "AQC":
         cbar.ax.set_title("[mm / 5 min]", fontsize=16)
     else:
         cbar.ax.set_title("[mm/h]", fontsize=16)
@@ -135,10 +219,10 @@ def make_avg_zoom(region,outDir, useOsm=False):
     )
 
 
-def make_sum_zoom(region,outDir,rain_gauges=None,useOsm=False,unit="mm"):
-    cmap16,norm = _get_colours(COLOURS_SUM)
-    bounds,ticklabels = _get_tick_bounds()
-    bname =  region.bname
+def make_sum_zoom(region, outDir, useOsm=False, unit="mm", **rg_kwargs):
+    cmap16, norm = _get_colours(COLOURS_SUM)
+    bounds, ticklabels = _get_tick_bounds()
+    bname = region.bname
     fname = region.fbname
 
     if useOsm:
@@ -146,7 +230,7 @@ def make_sum_zoom(region,outDir,rain_gauges=None,useOsm=False,unit="mm"):
     if useOsm and exists("osmdata_water.shp"):
         osm_water_lv95 = shp.Reader("osmdata_water.shp")
 
-    outFile = outDir + "/" + bname['eventCodeName'] + "-sum-zoom.png"
+    outFile = outDir + "/" + bname["eventCodeName"] + "-sum-zoom.png"
     fig, ax = plt.subplots(figsize=(20, 20))
     cs = plt.imshow(
         terrain,
@@ -166,19 +250,19 @@ def make_sum_zoom(region,outDir,rain_gauges=None,useOsm=False,unit="mm"):
         + " ["
         + str(int(region.surfacekm2))
         + " km\u00b2]\nfrom: "
-        + bname['time'].strftime("%d/%m/%Y")
+        + bname["time"].strftime("%d/%m/%Y")
         + " "
-        + bname['hour']
+        + bname["hour"]
         + ":"
-        + bname['minute']
+        + bname["minute"]
         + "UTC to: "
-        + fname['time'].strftime("%d/%m/%Y")
+        + fname["time"].strftime("%d/%m/%Y")
         + " "
-        + fname['hour']
+        + fname["hour"]
         + ":"
-        + fname['minute']
+        + fname["minute"]
         + "UTC, product = "
-        + bname['prd'],
+        + bname["prd"],
         fontsize=26,
     )
     plt.plot()
@@ -213,7 +297,8 @@ def make_sum_zoom(region,outDir,rain_gauges=None,useOsm=False,unit="mm"):
             lw=1,
         )
     )
-    if rain_gauges:
+    if "rain_gauges" in rg_kwargs.keys():
+        rain_gauges = rg_kwargs["rain_gauges"]
         for rain_gauge in rain_gauges:
             idx_col = find_nearest(BOUNDS_AVG, rain_gauge["depth"])
             rg_col = COLOURS_AVG[idx_col]
@@ -255,13 +340,13 @@ def make_sum_zoom(region,outDir,rain_gauges=None,useOsm=False,unit="mm"):
     )
 
 
-def make_sum(region,outDir,unit="mm"):
-    cmap16,norm = _get_colours(COLOURS_SUM)
-    bounds,ticklabels = _get_tick_bounds()
-    bname =  region.bname
+def make_sum(region, outDir, unit="mm"):
+    cmap16, norm = _get_colours(COLOURS_SUM)
+    bounds, ticklabels = _get_tick_bounds()
+    bname = region.bname
     fname = region.fbname
 
-    outFile = outDir + "/" + bname['eventCodeName'] + "-sum.png"
+    outFile = outDir + "/" + bname["eventCodeName"] + "-sum.png"
 
     fig, ax = plt.subplots(figsize=(20, 20))
     cs = plt.imshow(
@@ -286,17 +371,17 @@ def make_sum(region,outDir,unit="mm"):
     ax.set_title(
         "Total precipitation sum over Swiss radar domain "
         + "\nfrom: "
-        + bname['time'].strftime("%d/%m/%Y")
+        + bname["time"].strftime("%d/%m/%Y")
         + " "
-        + bname['hour']
+        + bname["hour"]
         + ":"
-        + bname['minute']
+        + bname["minute"]
         + "UTC to: "
-        + fname['time'].strftime("%d/%m/%Y")
+        + fname["time"].strftime("%d/%m/%Y")
         + " "
-        + fname['hour']
+        + fname["hour"]
         + ":"
-        + fname['minute']
+        + fname["minute"]
         + "UTC",
         fontsize=26,
     )
@@ -359,12 +444,11 @@ def processAllFiles(region, allFiles, outDir, useOsmSingleFiles=False):
         processSingleFile(region, allFiles, i, outDir, useOsmSingleFiles)
 
 
-def processSingleFile(region,allFiles,i,outDir, useOsmSingleFiles=False):
-    cmap,norm = _get_colours(COLOURS_AVG,bounds=BOUNDS_AVG)
+def processSingleFile(region, allFiles, i, outDir, useOsmSingleFiles=False):
+    cmap, norm = _get_colours(COLOURS_AVG, bounds=BOUNDS_AVG)
 
     if not os.path.isdir(outDir + "/single-plots"):
         os.makedirs(outDir + "/single-plots")
-
 
     filename = allFiles[i]
     bname = filename.split(os.path.sep)[-1].split(os.path.sep)[-1]
@@ -438,7 +522,7 @@ def processSingleFile(region,allFiles,i,outDir, useOsmSingleFiles=False):
     plt.yticks(rotation=90, va="center")
 
     if useOsmSingleFiles:
-        if exists("osmdata_water.shp") :
+        if exists("osmdata_water.shp"):
             osm_water_lv95 = shp.Reader("osmdata_water.shp")
         for shape in osm_water_lv95.shapes():
             plotShapefile(shape, "blue", ax=ax)
@@ -479,8 +563,7 @@ def processSingleFile(region,allFiles,i,outDir, useOsmSingleFiles=False):
     outFile = outDir + "/CSV/" + bname + ".csv"
 
 
-
-def make_roiMap(region,outDir):
+def make_roiMap(region, outDir):
     import osmnx as ox
     from pyproj import Transformer
     import math
@@ -528,7 +611,7 @@ def make_roiMap(region,outDir):
 
     G_water = G_water.to_crs("epsg:4326")
     # Plot
-    outFile = outDir + "/" + region.file_info['eventCodeName'] + "-roimap.png"
+    outFile = outDir + "/" + region.file_info["eventCodeName"] + "-roimap.png"
     fig, ax = plt.subplots(figsize=(20, 20))
     ax.set_title(
         "Overview of region "
@@ -587,7 +670,7 @@ def make_roiMap(region,outDir):
     terrain_lonlat = dem_lonlat.read(1)
     terrain_lonlat[terrain_lonlat == terrain_lonlat.min()] = 0
     rasterio.plot.show(dem_lonlat, ax=ax, cmap="gray")
-    
+
     ox.plot_graph(
         G1_projected_streets,
         ax=ax,
@@ -648,10 +731,10 @@ def make_roiMap(region,outDir):
     gdf_edges.to_file("osmdata_water.shp")
 
 
-def _get_colours(colours,bounds=None):
+def _get_colours(colours, bounds=None, colorscaleStep=5):
     """
     Create a colormap and normalization object from a list of colors.
-    
+
     Args:
     -----
     colours: list
@@ -659,7 +742,9 @@ def _get_colours(colours,bounds=None):
     bounds: list, optional
      A list of bounds for the normalization.
      If not provided, default bounds are used.
-    
+    coloarscaleStep: int, optional
+     The step size of the tick bounds. Default is 5
+
     Returns:
     --------
     cmap: colors.ListedColormap
@@ -667,8 +752,8 @@ def _get_colours(colours,bounds=None):
     norm: colors.BoundaryNorm
      the normalization object
     """
-    if bounds==None:
-        bounds,__ = _get_tick_bounds()
+    if bounds == None:
+        bounds, __ = _get_tick_bounds(colorscaleStep)
     cc = mcolors.ColorConverter().to_rgba
     c16 = [cc(c0, 0.85) for c0 in colours]
     c16[0] = cc(colours[0], 0.8)
@@ -681,7 +766,7 @@ def _get_colours(colours,bounds=None):
 def _get_tick_bounds(colorscaleStep=5):
     """
     Calculate tick bounds and labels for a color scale.
-    
+
     Args:
     -----
     coloarscaleStep: int, optional
@@ -701,5 +786,4 @@ def _get_tick_bounds(colorscaleStep=5):
     ticklabels = [str(x) for x in bounds]
     ticklabels[0] = "NA"
     ticklabels[len(ticklabels) - 1] = ""
-    return bounds,ticklabels
-
+    return bounds, ticklabels
