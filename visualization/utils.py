@@ -7,6 +7,7 @@ import pandas as pd
 from scipy.ndimage import uniform_filter
 
 from utils.transformation import coordx2ind, coordy2ind
+
 #
 
 dir = os.path.abspath(os.path.join(os.path.dirname(__file__)))
@@ -16,16 +17,17 @@ dir = os.path.abspath(os.path.join(os.path.dirname(__file__)))
 colorscale = os.path.join(dir, "8bit_CPC_py.txt")
 colorscale_rzc = os.path.join(dir, "8bit_Metranet_v103_py.txt")
 
+
 def getRainscale(colorscale):
     """
     Read a rainscale color map from a file.
     The file should contain one row per color, with columns for the index, R, G, B, and value of each color.
-    
+
     Args:
     -----
     colorscale: str
      The path to the file containing the color map.
-    
+
     Returns:
     --------
     rainscale: ndarray
@@ -81,7 +83,7 @@ def plotShapefile(shape, colour, ax, linewidth=1.0):
         ax.plot(x, y, color=colour, linewidth=linewidth)
 
 
-def get_totalSum(totalDomainSum,rectangle,size):
+def get_totalSum(totalDomainSum, rectangle, size):
     """
     Calculate the total sum of an array within a given rectangle.
 
@@ -90,7 +92,7 @@ def get_totalSum(totalDomainSum,rectangle,size):
     totalDomainSum: ndarray
      The array to sum.
     rectangle: tuple
-     The rectangle within which to calculate the sum. It should be 
+     The rectangle within which to calculate the sum. It should be
      given as a tuple of (xmin, xmax, ymin, ymax).
     size: int
      The size of the uniform filter to apply.
@@ -109,7 +111,7 @@ def get_totalSum(totalDomainSum,rectangle,size):
     return totalSum
 
 
-def select_coord(df,region):
+def select_coord(df, region):
     """
     Select the coordinates in a dataframe that fall within a given region.
 
@@ -117,9 +119,9 @@ def select_coord(df,region):
     -----
     df: DataFrame
      The dataframe containing the coordinates.
-    region: object 
-     An object representing the region. It should have a 
-     rectangle attribute, which is a tuple (xmin, xmax, ymin, ymax) 
+    region: object
+     An object representing the region. It should have a
+     rectangle attribute, which is an array (xmin, xmax, ymin, ymax)
      specifying the bounds of the region.
 
     Returns:
@@ -177,14 +179,14 @@ def makeSummaryFile(summary_file, timestampsoneline, region):
     summary_file: file object
      The file to which the summary data should be written
     timestampsoneline: list
-     List containing timestamps in format DD-MM-YYYY HH:MMUTC      
+     List containing timestamps in format DD-MM-YYYY HH:MMUTC
     region: object
-     An object representing the region for which to generate the summary data. 
+     An object representing the region for which to generate the summary data.
      Should contain 'totalRoi' and 'rectangle' as attribute.
 
     Returns:
     --------
-    None    
+    None
     """
     height = region.totalRoi.shape[0]
     width = region.totalRoi.shape[1]
@@ -203,7 +205,7 @@ def makeSummaryFile(summary_file, timestampsoneline, region):
                 + "]\ntime UTC ; intensity [mm/h] ; sum [mm]\n"
             )
             pixelOverTime = region.totalRoi[h, w, :]
-            if region.bname['prd'] == "AQC":
+            if region.bname["prd"] == "AQC":
                 pixelCumsum = np.around(np.cumsum(pixelOverTime), decimals=1)
             else:
                 pixelCumsum = np.around(np.cumsum(pixelOverTime / 12.0), decimals=1)
@@ -212,6 +214,3 @@ def makeSummaryFile(summary_file, timestampsoneline, region):
             np.savetxt(
                 summary_file, pixelData, fmt="%s ; %s ; %s", header="", newline="\n"
             )
-
-
-
