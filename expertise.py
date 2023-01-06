@@ -13,6 +13,44 @@ def run_expertise(
     *rg_args,
     **opt_kwargs,
 ):
+    """
+    Run the expertise script to generate data and plots for a given date and product (RZC or CPC).
+
+    Args:
+    -----
+    date: datetime
+     The date for which to generate the expertise.
+    product: str
+     The product to use, either 'RZC' or 'CPC'.
+    file_dir: str
+     The directory where the data is stored and where the output will be saved.
+    *rg_args: list, optional
+     Additional positional arguments for raingauges, output of func: make_rg
+     should be passed.
+    **opt_kwars: dict, optional
+     Optional keyword arguments to be passed to the make_expertise function. The following keys are recognized:
+     - POHfiles: bool, optional
+     Whether to include POH daily data in the analysis. Default is False.
+     - POHSingleFiles: bool, optional
+     Whether to include 5-min POH file data in the analysis. Default is False.
+     - singleFiles: bool, optional
+     Whether to generate plots for 5-min files. Default is False.
+     - roiMap: bool, optional
+     Whether to generate a map of the region of interest. Default is False.
+     - visibMap: bool, optional
+     Whether to generate a visibility map. Default is False.
+     - useOsm: bool, optional
+     Whether to use OpenStreetMap data for the maps. Default is False.
+     - useOsmSingleFiles: bool, optional
+     Whether to use OpenStreetMap data for the individual file maps. Default is False.
+     - make_kml_file: bool, optional
+     Whether to generate a KML file for the region of interest. Default is False.
+
+    Returns:
+    --------
+    None
+
+    """
     try:
         opt_kwargs = opt_kwargs["opt_kwargs"]
     except KeyError:
