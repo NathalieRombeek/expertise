@@ -11,8 +11,8 @@ WORKDIR = os.path.abspath(os.path.dirname(__file__))
 
 def retrieve_input_data(
     date,
+    file_dir,
     product="RZC",
-    file_dir="/scratch/nrombeek/expertise/",
     get_daily_POH=False,
     get_single_POH=False,
 ):
