@@ -6,18 +6,18 @@ import datetime
 import zipfile
 import os
 
-from yaconfigobject import Config
-
 WORKDIR = os.path.abspath(os.path.dirname(__file__))
-CFG = Config(name=os.path.join(WORKDIR, "expertise.config"))
-
-get_daily_POH = CFG.output.POHfiles
-get_single_POH = CFG.output.POHSingleFiles
 
 
-def retrieve_input_data(date, product="CPC", file_dir="/scratch/nrombeek/expertise/"):
-    """Extracts files of a specific product (RZC, CPC, POH and/or hailsize 
-     crowdsourcedata) from the MeteoSwiss database 
+def retrieve_input_data(
+    date,
+    product="RZC",
+    file_dir="/scratch/nrombeek/expertise/",
+    get_daily_POH=False,
+    get_single_POH=False,
+):
+    """Extracts files of a specific product (RZC, CPC, POH and/or hailsize
+     crowdsourcedata) from the MeteoSwiss database
 
     Args:
     -----
@@ -27,10 +27,15 @@ def retrieve_input_data(date, product="CPC", file_dir="/scratch/nrombeek/experti
      precipitation product that will be retrieved, either RZC or CPC
     file_dir: str
      The main directory where the retrieved data will be saved
-    
+    get_daily_POH: bool, optional
+     Option to retrieve daily probability of hail product
+    get_single_POH: bool, optional
+     Option to retrieve 5-min probability of hail product
+
     Returns:
     --------
-    None
+    sub_dir: str
+     Directory where all files are saved.
     """
 
     YearDOY = str(date.strftime("%Y%j"))
@@ -38,21 +43,23 @@ def retrieve_input_data(date, product="CPC", file_dir="/scratch/nrombeek/experti
     sub_dir = os.path.join(file_dir, YearDOY + "_saettele/")
     if not os.path.exists(sub_dir):
         os.makedirs(sub_dir)
-    
-    retrieve_precip(date,product,sub_dir)
+
+    retrieve_precip(date, product, sub_dir)
 
     if get_daily_POH:
         hail_path = os.path.join(sub_dir, "POH/")
         if not os.path.exists(hail_path):
             os.makedirs(hail_path)
-        retrieve_POH(date,hail_path,single_POH=get_single_POH)
+        retrieve_POH(date, hail_path, single_POH=get_single_POH)
         if get_single_POH:
-            retrieve_hail_crowdsource(date=date,dir=hail_path,transform=True)
+            retrieve_hail_crowdsource(date=date, dir=hail_path, transform=True)
+
+    return sub_dir
 
 
-def retrieve_precip(date,prd,dir):    
+def retrieve_precip(date, prd, dir):
     """Copies and extracts precipitation (RZC or CPC)
-     from the MeteoSwiss database 
+     from the MeteoSwiss database
 
     Args:
     -----
@@ -62,12 +69,12 @@ def retrieve_precip(date,prd,dir):
      precipitation product that will be retrieved, either RZC or CPC
     dir: str
      The directory where the precipitation data should be saved
-    
+
     Returns:
     --------
     None
     """
-    
+
     year = date.strftime("%Y")
     YYDOY = str(date.strftime("%y%j"))
     YearDOY = str(date.strftime("%Y%j"))
@@ -78,9 +85,7 @@ def retrieve_precip(date,prd,dir):
             src = f"/store/msrad/radar/swiss/hdf5/{year}/{YYDOY}/{prd}{YYDOY}.zip"
             shutil.copy(src, dst)
         except FileNotFoundError:
-            src = (
-                f"/store/msrad/radar/swiss/hdf5/{year}/{YYDOY}/{prd}flt{YYDOY}.zip"
-            )
+            src = f"/store/msrad/radar/swiss/hdf5/{year}/{YYDOY}/{prd}flt{YYDOY}.zip"
             shutil.copy(src, dst)
     elif prd == "CPC":
         src = f"/store/msrad/radar/swiss/data/{year}/{YYDOY}/{prd}{YYDOY}.zip"
@@ -102,7 +107,7 @@ def retrieve_precip(date,prd,dir):
                     zipObject.extract(fileName, rain_path)
 
 
-def retrieve_POH(date,dir,single_POH=False):
+def retrieve_POH(date, dir, single_POH=False):
     """
     Retrieve POH data for a given date and
      optionally extract single 5-min POH files,
@@ -117,14 +122,14 @@ def retrieve_POH(date,dir,single_POH=False):
     single_POH: bool, optional
      Indicates whether to also retrieve the single
      5-min POH files. Defaults to False.
-    
+
     Returns:
     --------
     None
     """
     year = date.strftime("%Y")
     YYDOY = str(date.strftime("%y%j"))
-        
+
     src = f"/store/msrad/radar/swiss/data/{year}/{YYDOY}/dBZCH{YYDOY}.zip"
     with zipfile.ZipFile(src, "r") as zipObject:
         listOfFileNames = zipObject.namelist()
@@ -140,7 +145,7 @@ def retrieve_POH(date,dir,single_POH=False):
             zip_ref.extractall(dir)
 
 
-def retrieve_hail_crowdsource(date,dir,transform=True):
+def retrieve_hail_crowdsource(date, dir, transform=True):
     """
     Retrieve hail crowdsource data for a given date and optionally transform it.
 
@@ -152,7 +157,7 @@ def retrieve_hail_crowdsource(date,dir,transform=True):
      The directory where the crowdsource data should be saved.
     transform: bool, optional
      Indicates whether to transform the crowdsource data. Defaults to True.
-    
+
     Returns:
     --------
     None
@@ -168,13 +173,13 @@ def retrieve_hail_crowdsource(date,dir,transform=True):
         shutil.copy(crs_path, dst)
 
         if transform:
-           transform_crowdsource(YYDOY,dir)
+            transform_crowdsource(YYDOY, dir)
 
     else:
         print(f"no crowdsource data available on {YYDOY}")
 
 
-def transform_crowdsource(YYDOY,hail_dir):
+def transform_crowdsource(YYDOY, hail_dir):
     """
     Transform crowdsource data from the .prd
      format to a .csv format with Swiss coordinates
@@ -184,7 +189,7 @@ def transform_crowdsource(YYDOY,hail_dir):
     YYDOY: str
      The YYDOY identifier for the crowdsource data
     dir: str
-     The directory containing the .prd file and 
+     The directory containing the .prd file and
      where the .csv file will be saved
 
     Returns:
@@ -195,9 +200,9 @@ def transform_crowdsource(YYDOY,hail_dir):
     import pyproj
 
     df = pd.read_csv(
-    os.path.join(hail_dir, YYDOY + "_crowdsource.prd"),
-    sep=" ",
-    header=None,
+        os.path.join(hail_dir, YYDOY + "_crowdsource.prd"),
+        sep=" ",
+        header=None,
     )
     df = df.dropna(axis=1)
     df = df.drop(columns=[8])
