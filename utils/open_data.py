@@ -178,12 +178,13 @@ def get_POH_domain(dir, rectangle, POHSingleFiles=False):
     """
     POH_Dir = os.path.join(dir, "POH")
     POH_file = glob.glob(os.path.join(POH_Dir, "*2400VL.845.h5"))
-    POH_daily = Dataset(POH_file[0])
-    POH_full = np.transpose(np.ma.getdata(POH_daily["dataset1"]["data1"]["data"][:]))
-    POH_domain = POH_full[
-        coordy2ind(rectangle[3]) : coordy2ind(rectangle[2]),
-        coordx2ind(rectangle[0]) : coordx2ind(rectangle[1]),
-    ]
+    with Dataset(POH_file[0]) as POH_daily:
+        POH_daily = Dataset(POH_file[0])
+        POH_full = np.transpose(np.ma.getdata(POH_daily["dataset1"]["data1"]["data"][:]))
+        POH_domain = POH_full[
+            coordy2ind(rectangle[3]) : coordy2ind(rectangle[2]),
+            coordx2ind(rectangle[0]) : coordx2ind(rectangle[1]),
+        ]
     maxPOHOverTime = None
     if np.count_nonzero(~np.isnan(POH_domain)) != 0 and POHSingleFiles:
         maxPOHOverTime = get_single_POH(POH_Dir, rectangle)
@@ -211,11 +212,12 @@ def get_single_POH(dir, rectangle):
     all_POH_files = np.sort(all_POH_files)
     maxPOH = np.zeros(len(all_POH_files))
     for i, file in enumerate(all_POH_files):
-        POH_single = (Dataset(file))["dataset1"]["data1"]["data"][:]
-        POH_single_domain = POH_single[
-            coordy2ind(rectangle[3]) : coordy2ind(rectangle[2]),
-            coordx2ind(rectangle[0]) : coordx2ind(rectangle[1]),
-        ]
+        with Dataset(file) as nc:
+            POH_single = nc["dataset1"]["data1"]["data"][:]
+            POH_single_domain = POH_single[
+                coordy2ind(rectangle[3]) : coordy2ind(rectangle[2]),
+                coordx2ind(rectangle[0]) : coordx2ind(rectangle[1]),
+            ]
         maxPOH[i] = np.nanmax(POH_single_domain)
 
     return maxPOH
