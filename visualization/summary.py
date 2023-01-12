@@ -155,149 +155,148 @@ def make_netCDF_summary(region,outDir):
 
     outFile = outDir + "/" + bname['eventCodeName'] + "-summary.nc"
 
-    ncfile = Dataset(outFile, "w", format="NETCDF4")
+    with Dataset(outFile, "w", format="NETCDF4") as ncfile:
 
-    ncfile.title = f'Summary of precipitation for {timeserie[0].strftime("%d/%m/%Y")}'
-    ncfile.history = f"Created on {dt_string}"
-    ncfile.institution = "MeteoSwiss (Switzerland)"
-    ncfile.setncattr("Radar product", bname['prd'])
-    ncfile.setncattr(
-        "proj4",
-        "+proj=somerc +lat_0=46.95240555555556 +lon_0=7.439583333333333 +k_0=1 +x_0=2600000 +y_0=1200000 +ellps=bessel +towgs84=674.374,15.056,405.346,0,0,0,0 +units=m +no_defs",
-    )
+        ncfile.title = f'Summary of precipitation for {timeserie[0].strftime("%d/%m/%Y")}'
+        ncfile.history = f"Created on {dt_string}"
+        ncfile.institution = "MeteoSwiss (Switzerland)"
+        ncfile.setncattr("Radar product", bname['prd'])
+        ncfile.setncattr(
+            "proj4",
+            "+proj=somerc +lat_0=46.95240555555556 +lon_0=7.439583333333333 +k_0=1 +x_0=2600000 +y_0=1200000 +ellps=bessel +towgs84=674.374,15.056,405.346,0,0,0,0 +units=m +no_defs",
+        )
 
-    # group with whole domain
-    domain = ncfile.createGroup("Domain")
-    domain.createDimension("x", 710)
-    domain.createDimension("y", 640)
-    domain.createDimension(
-        "time",
-    )
-
-    dom_t = domain.createVariable("time", np.int64, ("time",))
-    dom_t.long_name = f'minutes since {timeserie[0].strftime("%d/%m/%Y %H:%M")} UTC'
-    dom_t[:] = [(t.total_seconds()) / 60 for t in diff_sec]
-
-    domx = domain.createVariable(
-        "lat",
-        np.float64,
-        (
-            "x",
-            "y",
-        ),
-    )
-    domy = domain.createVariable(
-        "lon",
-        np.float64,
-        (
-            "x",
-            "y",
-        ),
-    )
-    domx.long_name = "x-coordinate in Swiss coordinate system"
-    domy.long_name = "y-coordinate in Swiss coordinate system"
-    domx.units = "km"
-    domy.units = "km"
-
-    X_coord = list(range(2255000, 2965000, 1000))  # 710
-    Y_coord = list(range(840000, 1480000, 1000))  # 640
-    Y, X = np.meshgrid(Y_coord, X_coord)
-
-    domy[:] = Y
-    domx[:] = X
-
-    dom_int = domain.createVariable(
-        "intensity",
-        np.float32,
-        (
-            "x",
-            "y",
+        # group with whole domain
+        domain = ncfile.createGroup("Domain")
+        domain.createDimension("x", 710)
+        domain.createDimension("y", 640)
+        domain.createDimension(
             "time",
-        ),
-    )
-    dom_int.long_name = "Intensity"
-    dom_int.units = "mm/h"
+        )
 
-    tot_domain = np.transpose(region.totalDomain[:, :, :288], (1, 0, 2))
-    dom_int[:] = tot_domain
-    dom_sum = domain.createVariable(
-        "sum",
-        np.float32,
-        (
-            "x",
-            "y",
-        ),
-    )
-    dom_sum.long_name = "Total rainfall during day"
-    dom_sum.units = "mm"
-    dom_sum[:] = np.around(np.nansum(tot_domain / 12, axis=2), decimals=2)
+        dom_t = domain.createVariable("time", np.int64, ("time",))
+        dom_t.long_name = f'minutes since {timeserie[0].strftime("%d/%m/%Y %H:%M")} UTC'
+        dom_t[:] = [(t.total_seconds()) / 60 for t in diff_sec]
 
-    # group with basin
-    basin = ncfile.createGroup(f"{region.name}")
-    basin.createDimension("x", 7)
-    basin.createDimension("y", 7)
-    basin.createDimension(
-        "time",
-    )
+        domx = domain.createVariable(
+            "lat",
+            np.float64,
+            (
+                "x",
+                "y",
+            ),
+        )
+        domy = domain.createVariable(
+            "lon",
+            np.float64,
+            (
+                "x",
+                "y",
+            ),
+        )
+        domx.long_name = "x-coordinate in Swiss coordinate system"
+        domy.long_name = "y-coordinate in Swiss coordinate system"
+        domx.units = "km"
+        domy.units = "km"
 
-    basin_t = basin.createVariable("time", np.int64, ("time",))
-    basin_t.long_name = f'minutes since {timeserie[0].strftime("%Y/%m/%d %H:%M")} UTC'
-    basin_t[:] = [(t.total_seconds()) / 60 for t in diff_sec]
+        X_coord = list(range(2255000, 2965000, 1000))  # 710
+        Y_coord = list(range(840000, 1480000, 1000))  # 640
+        Y, X = np.meshgrid(Y_coord, X_coord)
 
-    x_dim = basin.createVariable(
-        "lat",
-        np.float64,
-        (
-            "x",
-            "y",
-        ),
-    )
-    y_dim = basin.createVariable(
-        "lon",
-        np.float64,
-        (
-            "x",
-            "y",
-        ),
-    )
-    x_dim.long_name = "x-coordinate in Swiss coordinate system"
-    y_dim.long_name = "y-coordinate in Swiss coordinate system"
-    x_dim.units = "km"
-    y_dim.units = "km"
+        domy[:] = Y
+        domx[:] = X
 
-    Y_coord = list(range(region.rectangle[0] + 500, region.rectangle[1] + 500, 1000))
-    X_coord = list(range(region.rectangle[2] + 500, region.rectangle[3] + 500, 1000))
-    Y, X = np.meshgrid(Y_coord, X_coord)
+        dom_int = domain.createVariable(
+            "intensity",
+            np.float32,
+            (
+                "x",
+                "y",
+                "time",
+            ),
+        )
+        dom_int.long_name = "Intensity"
+        dom_int.units = "mm/h"
 
-    y_dim[:] = Y
-    x_dim[:] = X
+        tot_domain = np.transpose(region.totalDomain[:, :, :288], (1, 0, 2))
+        dom_int[:] = tot_domain
+        dom_sum = domain.createVariable(
+            "sum",
+            np.float32,
+            (
+                "x",
+                "y",
+            ),
+        )
+        dom_sum.long_name = "Total rainfall during day"
+        dom_sum.units = "mm"
+        dom_sum[:] = np.around(np.nansum(tot_domain / 12, axis=2), decimals=2)
 
-    intensity = basin.createVariable(
-        "intensity",
-        np.float32,
-        (
-            "x",
-            "y",
+        # group with basin
+        basin = ncfile.createGroup(f"{region.name}")
+        basin.createDimension("x", 7)
+        basin.createDimension("y", 7)
+        basin.createDimension(
             "time",
-        ),
-    )
-    intensity.long_name = "Intensity"
-    intensity.units = "mm/h"
+        )
 
-    intensity[:] = region.totalRoi[:, :, :288]
-    sum = basin.createVariable(
-        "sum",
-        np.float32,
-        (
-            "x",
-            "y",
-        ),
-    )
-    sum.long_name = "Total rainfall during day"
-    sum.units = "mm"
-    sum[:] = np.around(np.sum(region.totalRoi / 12.0, axis=(2)), decimals=2)
+        basin_t = basin.createVariable("time", np.int64, ("time",))
+        basin_t.long_name = f'minutes since {timeserie[0].strftime("%Y/%m/%d %H:%M")} UTC'
+        basin_t[:] = [(t.total_seconds()) / 60 for t in diff_sec]
 
-    ncfile.close()
+        x_dim = basin.createVariable(
+            "lat",
+            np.float64,
+            (
+                "x",
+                "y",
+            ),
+        )
+        y_dim = basin.createVariable(
+            "lon",
+            np.float64,
+            (
+                "x",
+                "y",
+            ),
+        )
+        x_dim.long_name = "x-coordinate in Swiss coordinate system"
+        y_dim.long_name = "y-coordinate in Swiss coordinate system"
+        x_dim.units = "km"
+        y_dim.units = "km"
+
+        Y_coord = list(range(region.rectangle[0] + 500, region.rectangle[1] + 500, 1000))
+        X_coord = list(range(region.rectangle[2] + 500, region.rectangle[3] + 500, 1000))
+        Y, X = np.meshgrid(Y_coord, X_coord)
+
+        y_dim[:] = Y
+        x_dim[:] = X
+
+        intensity = basin.createVariable(
+            "intensity",
+            np.float32,
+            (
+                "x",
+                "y",
+                "time",
+            ),
+        )
+        intensity.long_name = "Intensity"
+        intensity.units = "mm/h"
+
+        intensity[:] = region.totalRoi[:, :, :288]
+        sum = basin.createVariable(
+            "sum",
+            np.float32,
+            (
+                "x",
+                "y",
+            ),
+        )
+        sum.long_name = "Total rainfall during day"
+        sum.units = "mm"
+        sum[:] = np.around(np.sum(region.totalRoi / 12.0, axis=(2)), decimals=2)
+
 
 
 ###############
