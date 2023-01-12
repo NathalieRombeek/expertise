@@ -90,7 +90,7 @@ def make_POH_series(region,allFiles,Dir):
     timestamps = np.array(list(map(fname2timestring, allFiles)))
     all_POH_files = glob(os.path.join(Dir,"POH", "SingleFiles", "*.h5"))
 
-    outDir = os.path.join(Dir,"Carrerabach")
+    outDir = os.path.join(Dir,region.name)
     CrowdPath = os.path.join(Dir,"HailCrowdsource.csv")
     outFile = outDir + "/" + bname['eventCodeName'] + "-POH-ganglinie.png"
 
