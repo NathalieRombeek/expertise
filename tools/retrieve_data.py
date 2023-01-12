@@ -130,11 +130,13 @@ def retrieve_POH(date, dir, single_POH=False):
     year = date.strftime("%Y")
     YYDOY = str(date.strftime("%y%j"))
 
-    src = f"/store/msrad/radar/swiss/data/{year}/{YYDOY}/dBZCH{YYDOY}.zip"
+    # src = f"/store/msrad/radar/swiss/data/{year}/{YYDOY}/dBZCH{YYDOY}.zip"
+    src = f"/store/msrad/radar/swiss/hdf5/{year}/{YYDOY}/dBZCH{YYDOY}.zip"
     with zipfile.ZipFile(src, "r") as zipObject:
         listOfFileNames = zipObject.namelist()
         for fileName in listOfFileNames:
-            if fileName.endswith("2400VL.845"):
+            # if fileName.endswith("2400VL.845"):
+            if fileName.endswith("2400VL.845.h5"):
                 zipObject.extract(fileName, dir)
 
     if single_POH:
