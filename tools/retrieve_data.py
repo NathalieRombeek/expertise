@@ -132,12 +132,15 @@ def retrieve_POH(date, dir, single_POH=False):
 
     # src = f"/store/msrad/radar/swiss/data/{year}/{YYDOY}/dBZCH{YYDOY}.zip"
     src = f"/store/msrad/radar/swiss/hdf5/{year}/{YYDOY}/dBZCH{YYDOY}.zip"
-    with zipfile.ZipFile(src, "r") as zipObject:
-        listOfFileNames = zipObject.namelist()
-        for fileName in listOfFileNames:
-            # if fileName.endswith("2400VL.845"):
-            if fileName.endswith("2400VL.845.h5"):
-                zipObject.extract(fileName, dir)
+    if os.path.exists(src):
+        with zipfile.ZipFile(src, "r") as zipObject:
+            listOfFileNames = zipObject.namelist()
+            for fileName in listOfFileNames:
+                # if fileName.endswith("2400VL.845"):
+                if fileName.endswith("2400VL.845.h5"):
+                    zipObject.extract(fileName, dir)
+    else:
+        print("daily POH file does not exist in this format")
 
     if single_POH:
         src = f"/store/msrad/radar/swiss/hdf5/{year}/{YYDOY}/BZCH{YYDOY}.zip"
