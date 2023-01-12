@@ -14,6 +14,8 @@ import tools.region as region
 def make_expertise(
     dir,
     prd="RZC",
+    name="Carrerabach",
+    regionRectangle=[2739000, 2746000, 1178000, 1185000],
     singleFiles=False,
     POHfiles=False,
     POHSingleFiles=False,
@@ -35,8 +37,10 @@ def make_expertise(
      The date for which to generate the expertise.
     product: str
      The product to use, either 'RZC' or 'CPC'.
-    file_dir: str
-     The directory where the data is stored and where the output will be saved.
+    name: str, optional
+     Name of region of interest. Default is "Carrerabach".
+    regionRectangle: list, optional
+     Outer bounds of region of interest. Default is bounds corresponding to Carrerabach.
     POHfiles: bool, optional
      Whether to include POH daily data in the analysis. Default is False.
     POHSingleFiles: bool, optional
@@ -79,7 +83,7 @@ def make_expertise(
     allFiles = open_data.get_precip_files(dir, prd)
 
     # step 2 extract precipitation from files
-    Region = region.RegionInfo(allFiles)
+    Region = region.RegionInfo(allFiles,name=name,regionRectangle=regionRectangle)
     Region.fetch_precip_data(dir)
 
     # step 2b - optional - extract hail data

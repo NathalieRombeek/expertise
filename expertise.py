@@ -10,6 +10,8 @@ def run_expertise(
     date,
     product,
     file_dir,
+    name="Carrerabach",
+    regionRectangle=[2739000, 2746000, 1178000, 1185000],
     *rg_args,
     **opt_kwargs,
 ):
@@ -24,6 +26,10 @@ def run_expertise(
      The product to use, either 'RZC' or 'CPC'.
     file_dir: str
      The directory where the data is stored and where the output will be saved.
+    name: str, optional
+     Name of region of interest. Default is "Carrerabach".
+    regionRectangle: list, optional
+     Outer bounds of region of interest. Default is bounds corresponding to Carrerabach.
     *rg_args: list, optional
      Additional positional arguments for raingauges, output of func: make_rg
      should be passed.
@@ -127,6 +133,8 @@ def run_expertise(
     make_expertise(
         outDir,
         product,
+        name=name,
+        regionRectangle=regionRectangle,
         singleFiles=singleFiles,
         POHfiles=POHfiles,
         POHSingleFiles=POHSingleFiles,
