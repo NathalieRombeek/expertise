@@ -13,6 +13,6 @@ product="RZC"
 run_expertise(
     date,
     product,
-    file_dir="/scratch/nrombeek/expertise_package/example/",
+    file_dir="../example/",
     rg_args = rain_gauges,
     opt_kwargs={"visibMap": True})
