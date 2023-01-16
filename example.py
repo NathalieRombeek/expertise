@@ -15,4 +15,4 @@ run_expertise(
     product,
     file_dir="../example/",
     rg_args = rain_gauges,
-    opt_kwargs={"visibMap": True})
+    opt_kwargs={"visibMap": True, "POHfiles": True})
