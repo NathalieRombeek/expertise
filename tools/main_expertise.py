@@ -81,6 +81,7 @@ def make_expertise(
 
     # step 1 open all files
     allFiles = open_data.get_precip_files(dir, prd)
+    allFiles = np.sort(allFiles)
 
     # step 2 extract precipitation from files
     Region = region.RegionInfo(allFiles,name=name,regionRectangle=regionRectangle)

@@ -129,8 +129,8 @@ def make_timeserie(bname, fname):
      containing timeseries with 5-min interval
     """
 
-    n_incr = int((fname["date"] - bname["time"]).total_seconds() / (60 * 5))
-    timeserie = bname["time"] + np.array(
+    n_incr = int((fname["date"] - bname["date"]).total_seconds() / (60 * 5))
+    timeserie = bname["date"] + np.array(
         [timedelta(minutes=5 * i) for i in range(n_incr + 1)]
     )
     return timeserie

@@ -218,7 +218,7 @@ def make_netCDF_summary(region,outDir):
         dom_int.long_name = "Intensity"
         dom_int.units = "mm/h"
 
-        tot_domain = np.transpose(region.totalDomain[:, :, :288], (1, 0, 2))
+        tot_domain = np.transpose(region.totalDomain[:, :, :], (1, 0, 2))
         dom_int[:] = tot_domain
         dom_sum = domain.createVariable(
             "sum",
@@ -284,7 +284,7 @@ def make_netCDF_summary(region,outDir):
         intensity.long_name = "Intensity"
         intensity.units = "mm/h"
 
-        intensity[:] = region.totalRoi[:, :, :288]
+        intensity[:] = region.totalRoi[:, :, :]
         sum = basin.createVariable(
             "sum",
             np.float32,
