@@ -7,7 +7,8 @@ DIR = os.path.abspath(os.path.dirname(__file__))
 
 
 def run_expertise(
-    date,
+    start_time,
+    end_time,
     product,
     file_dir,
     name="Carrerabach",
@@ -20,8 +21,10 @@ def run_expertise(
 
     Args:
     -----
-    date: datetime
-     The date for which to generate the expertise.
+    start_time: datetime
+     The start date for which to generate the expertise.
+    endtime: datetime
+     The end date for which to generate the expertise.
     product: str
      The product to use, either 'RZC' or 'CPC'.
     file_dir: str
@@ -74,7 +77,8 @@ def run_expertise(
 
     # 1. Retrieve input
     outDir = retrieve_input_data(
-        date,
+        start_time,
+        end_time,
         file_dir=file_dir,
         product=product,
         get_daily_POH=POHfiles,

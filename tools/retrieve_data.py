@@ -1,8 +1,9 @@
 """
 Method for extracting data in specified directory
 """
+from datetime import datetime, timedelta
+import numpy as np
 import shutil
-import datetime
 import zipfile
 import os
 
@@ -10,7 +11,8 @@ WORKDIR = os.path.abspath(os.path.dirname(__file__))
 
 
 def retrieve_input_data(
-    date,
+    start_date,
+    end_date,
     file_dir,
     product="RZC",
     get_daily_POH=False,
@@ -21,8 +23,10 @@ def retrieve_input_data(
 
     Args:
     -----
-    date: datetime
-     The date for which to retrieve the data
+    start_time: datetime
+     The start date for which to retrieve the data.
+    endtime: datetime
+     The end date for which to retrieve the data.
     product: str
      precipitation product that will be retrieved, either RZC or CPC
     file_dir: str
@@ -38,35 +42,41 @@ def retrieve_input_data(
      Directory where all files are saved.
     """
 
-    YearDOY = str(date.strftime("%Y%j"))
+    n_incr = int((end_date-start_date).total_seconds() / (60 * 5))
+    timeserie = start_date + np.array(
+        [timedelta(minutes=5 * i) for i in range(n_incr + 1)]
+    )
 
-    sub_dir = os.path.join(file_dir, YearDOY + "_saettele/")
+    start_time = str(start_date.strftime("%y%j%H%M"))
+    
+
+    sub_dir = os.path.join(file_dir, start_time + "_saettele/")
     if not os.path.exists(sub_dir):
         os.makedirs(sub_dir)
 
-    retrieve_precip(date, product, sub_dir)
+    retrieve_precip(timeserie, product, sub_dir)
 
     if get_daily_POH:
         hail_path = os.path.join(sub_dir, "POH/")
         if not os.path.exists(hail_path):
             os.makedirs(hail_path)
-        retrieve_POH(date, hail_path, single_POH=get_single_POH)
+        retrieve_POH(timeserie, hail_path, single_POH=get_single_POH)
         if get_single_POH:
-            retrieve_hail_crowdsource(date=date, dir=hail_path, transform=True)
+            retrieve_hail_crowdsource(timeserie=timeserie, dir=hail_path, transform=True)
 
     return sub_dir
 
 
-def retrieve_precip(date, prd, dir):
+def retrieve_precip(timeserie, prd, dir):
     """Copies and extracts precipitation (RZC or CPC)
      from the MeteoSwiss database
 
     Args:
     -----
-    date: datetime
-     The date for which to retrieve the precipitation data
+    timeserie: list, datetime
+     List with the dates with a 5-min timestep for which to retrieve the precipitation data
     product: str
-     precipitation product that will be retrieved, either RZC or CPC
+     Precipitation product that will be retrieved, either RZC or CPC
     dir: str
      The directory where the precipitation data should be saved
 
@@ -74,40 +84,51 @@ def retrieve_precip(date, prd, dir):
     --------
     None
     """
+    base_name = [None]*len(timeserie)
+    YYDOYS = set()
 
-    year = date.strftime("%Y")
-    YYDOY = str(date.strftime("%y%j"))
-    YearDOY = str(date.strftime("%Y%j"))
-
-    dst = os.path.join(dir, prd + "_" + YearDOY + ".zip")
-    if prd == "RZC":
-        try:
-            src = f"/store/msrad/radar/swiss/hdf5/{year}/{YYDOY}/{prd}{YYDOY}.zip"
-            shutil.copy(src, dst)
-        except FileNotFoundError:
-            src = f"/store/msrad/radar/swiss/hdf5/{year}/{YYDOY}/{prd}flt{YYDOY}.zip"
-            shutil.copy(src, dst)
-    elif prd == "CPC":
-        src = f"/store/msrad/radar/swiss/data/{year}/{YYDOY}/{prd}{YYDOY}.zip"
-        shutil.copy(src, dst)
+    for i, date in enumerate(timeserie):
+        base_name[i] = date.strftime("%y%j%H%M")
+        YYDOYS.add(base_name[i][:5])
 
     rain_path = os.path.join(dir, prd + "/")
 
     if not os.path.exists(rain_path):
         os.makedirs(rain_path)
 
-    if prd == "RZC":
-        with zipfile.ZipFile(dst, "r") as zip_ref:
-            zip_ref.extractall(rain_path)
-    if prd == "CPC":
-        with zipfile.ZipFile(dst, "r") as zipObject:
-            listOfFileNames = zipObject.namelist()
-            for fileName in listOfFileNames:
-                if fileName.endswith("00005.801.gif"):
+
+    for YYDOY in YYDOYS:
+        dst = os.path.join(dir, prd + "_" + YYDOY + ".zip")
+        year = "20"+YYDOY[:2]
+
+        if prd == "RZC":
+            try:
+                src = f"/store/msrad/radar/swiss/hdf5/{year}/{YYDOY}/{prd}{YYDOY}.zip"
+                shutil.copy(src, dst)
+            except FileNotFoundError:
+                src = f"/store/msrad/radar/swiss/hdf5/{year}/{YYDOY}/{prd}flt{YYDOY}.zip"
+                shutil.copy(src, dst)
+        elif prd == "CPC":
+            src = f"/store/msrad/radar/swiss/data/{year}/{YYDOY}/{prd}{YYDOY}.zip"
+            shutil.copy(src, dst)
+
+        if prd == "RZC":
+            with zipfile.ZipFile(dst, "r") as zipObject:
+                files = zipObject.namelist()
+                filtered_files = [file for file in files if any(date in file for date in base_name)]
+                for fileName in filtered_files:
                     zipObject.extract(fileName, rain_path)
+        elif prd == "CPC":
+            with zipfile.ZipFile(dst, "r") as zipObject:
+                files = zipObject.namelist()
+                filtered_files = [file for file in files if any(date in file for date in base_name)]
+                for fileName in filtered_files:
+                    if fileName.endswith("00005.801.gif"):
+                        zipObject.extract(fileName, rain_path)
 
 
-def retrieve_POH(date, dir, single_POH=False):
+
+def retrieve_POH(timeserie, dir, single_POH=False):
     """
     Retrieve POH data for a given date and
      optionally extract single 5-min POH files,
@@ -115,8 +136,8 @@ def retrieve_POH(date, dir, single_POH=False):
 
     Args:
     -----
-    date: datetime
-     The date for which to retrieve the POH data
+    timeserie: list, datetime
+     List with the dates with a 5-min timestep for which to retrieve the precipitation data
     dir: str
      The directory where the POH data should be saved
     single_POH: bool, optional
@@ -127,36 +148,43 @@ def retrieve_POH(date, dir, single_POH=False):
     --------
     None
     """
-    year = date.strftime("%Y")
-    YYDOY = str(date.strftime("%y%j"))
+    base_name = [None]*len(timeserie)
+    YYDOYS = set()
 
-    # src = f"/store/msrad/radar/swiss/data/{year}/{YYDOY}/dBZCH{YYDOY}.zip"
-    src = f"/store/msrad/radar/swiss/hdf5/{year}/{YYDOY}/dBZCH{YYDOY}.zip"
-    if os.path.exists(src):
-        with zipfile.ZipFile(src, "r") as zipObject:
-            listOfFileNames = zipObject.namelist()
-            for fileName in listOfFileNames:
-                # if fileName.endswith("2400VL.845"):
-                if fileName.endswith("2400VL.845.h5"):
-                    zipObject.extract(fileName, dir)
-    else:
-        print("daily POH file does not exist in this format")
+    for i, date in enumerate(timeserie):
+        base_name[i] = date.strftime("%y%j%H%M")
+        YYDOYS.add(base_name[i][:5])
 
-    if single_POH:
-        src = f"/store/msrad/radar/swiss/hdf5/{year}/{YYDOY}/BZCH{YYDOY}.zip"
-        dst = os.path.join(dir, "POH.zip")
-        shutil.copy(src, dst)
-        with zipfile.ZipFile(dst, "r") as zip_ref:
-            zip_ref.extractall(dir)
+    for YYDOY in YYDOYS:
+        year = "20"+YYDOY[:2]
+        src = f"/store/msrad/radar/swiss/hdf5/{year}/{YYDOY}/dBZCH{YYDOY}.zip"
+        if os.path.exists(src):
+            with zipfile.ZipFile(src, "r") as zipObject:
+                listOfFileNames = zipObject.namelist()
+                for fileName in listOfFileNames:
+                    if fileName.endswith("2400VL.845.h5"):
+                        zipObject.extract(fileName, dir)
+        else:
+            print("daily POH file does not exist in this format")
+
+        if single_POH:
+            src = f"/store/msrad/radar/swiss/hdf5/{year}/{YYDOY}/BZCH{YYDOY}.zip"
+            dst = os.path.join(dir, "POH.zip")
+            shutil.copy(src, dst)
+            with zipfile.ZipFile(dst, "r") as zipObject:
+                files = zipObject.namelist()
+                filtered_files = [file for file in files if any(date in file for date in base_name)]
+                for fileName in filtered_files:
+                    zipObject.extract(fileName,dir)
 
 
-def retrieve_hail_crowdsource(date, dir, transform=True):
+def retrieve_hail_crowdsource(timeserie, dir, transform=True):
     """
     Retrieve hail crowdsource data for a given date and optionally transform it.
 
     Args:
     -----
-    date: datetime
+    timeserie: list, datetime
      The date for which to retrieve the crowdsource data.
     dir: str
      The directory where the crowdsource data should be saved.
@@ -168,20 +196,23 @@ def retrieve_hail_crowdsource(date, dir, transform=True):
     None
     """
 
-    YYDOY = str(date.strftime("%y%j"))
+    YYDOYS = set()
+    for date in timeserie:
+        YYDOYS.add(date.strftime("%y%j"))
 
-    # get crowdsource data
-    crs_path = f"/store/msrad/crowdsourcing/hail/HQX/HQX{YYDOY}0000.prd"
-    if os.path.isfile(crs_path):
+    for YYDOY in YYDOYS:
+        # get crowdsource data
+        crs_path = f"/store/msrad/crowdsourcing/hail/HQX/HQX{YYDOY}0000.prd"
+        if os.path.isfile(crs_path):
 
-        dst = os.path.join(dir, f"{YYDOY}_crowdsource.prd")
-        shutil.copy(crs_path, dst)
+            dst = os.path.join(dir, f"{YYDOY}_crowdsource.prd")
+            shutil.copy(crs_path, dst)
 
-        if transform:
-            transform_crowdsource(YYDOY, dir)
+            if transform:
+                transform_crowdsource(YYDOY, dir)
 
-    else:
-        print(f"no crowdsource data available on {YYDOY}")
+        else:
+            print(f"no crowdsource data available on {YYDOY}")
 
 
 def transform_crowdsource(YYDOY, hail_dir):
