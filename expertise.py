@@ -22,9 +22,9 @@ def run_expertise(
     Args:
     -----
     start_time: datetime
-     The start date for which to generate the expertise.
+     The start date and time for which to generate the expertise. 
     endtime: datetime
-     The end date for which to generate the expertise.
+     The end date and time for which to generate the expertise.
     product: str
      The product to use, either 'RZC' or 'CPC'.
     file_dir: str

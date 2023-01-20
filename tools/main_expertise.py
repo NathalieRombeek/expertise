@@ -33,9 +33,9 @@ def make_expertise(
 
     Args:
     -----
-    date: datetime
-     The date for which to generate the expertise.
-    product: str
+    dir: str
+     Direcotory where all extracted products are stored and where output needs to be saved
+    prd: str
      The product to use, either 'RZC' or 'CPC'.
     name: str, optional
      Name of region of interest. Default is "Carrerabach".

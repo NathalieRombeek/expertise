@@ -121,6 +121,19 @@ matplotlib.rc("ytick", labelsize=14)
 
 
 def make_avg_zoom(region, outDir, useOsm=False):
+    """
+    Creates a plot containing average precipitation (mm/h),
+     zoomed in over the specific region
+
+    Args:
+    -----
+    region: object
+     contains information about the region.
+    outDir: str
+     Direcotory where output will be stored.
+    useOsm: bool, optional
+     Whether to use OpenStreetMap data for the maps. Default is False.  
+    """
     cmap, norm = _get_colours(COLOURS_AVG, BOUNDS_AVG)
     bname = region.bname
     fname = region.fbname
@@ -219,7 +232,22 @@ def make_avg_zoom(region, outDir, useOsm=False):
     )
 
 
-def make_sum_zoom(region, outDir, useOsm=False, unit="mm", *rg_kwargs):
+def make_sum_zoom(region, outDir, useOsm=False, *rg_kwargs):
+    """
+    Creates a plot containing total precipitation (mm),
+     zoomed in over the specific region
+     
+    Args:
+    -----
+    region: object
+     contains information about the region.
+    outDir: str
+     Direcotory where output will be stored.
+    useOsm: bool, optional
+     Whether to use OpenStreetMap data for the maps. Default is False.
+    *rg_kwargs: optional
+     raingauges kwargs, if defined, contains information about the raingauges
+    """
     cmap16, norm = _get_colours(COLOURS_SUM)
     bounds, ticklabels = _get_tick_bounds()
     bname = region.bname
@@ -326,7 +354,7 @@ def make_sum_zoom(region, outDir, useOsm=False, unit="mm", *rg_kwargs):
     )
     cbar.ax.set_yticklabels(ticklabels)
     ax.ticklabel_format(useOffset=False, style="plain")
-    cbar.ax.set_title(unit, fontsize=16)
+    cbar.ax.set_title("mm", fontsize=16)
     ax.tick_params(labelsize=16)
     cbar.outline.set_visible(False)
     cbar.ax.tick_params(size=0, labelsize=16)
@@ -339,7 +367,17 @@ def make_sum_zoom(region, outDir, useOsm=False, unit="mm", *rg_kwargs):
     )
 
 
-def make_sum(region, outDir, unit="mm"):
+def make_sum(region, outDir):
+    """
+    Creates a plot containing total precipitation (mm)
+
+    Args:
+    -----
+    region: object
+     contains information about the region.
+    outDir: str
+     Direcotory where output will be stored.
+    """
     cmap16, norm = _get_colours(COLOURS_SUM)
     bounds, ticklabels = _get_tick_bounds()
     bname = region.bname
@@ -426,7 +464,7 @@ def make_sum(region, outDir, unit="mm"):
     )
     cbar.ax.set_yticklabels(ticklabels)
     ax.ticklabel_format(useOffset=False, style="plain")
-    cbar.ax.set_title(unit, fontsize=16)
+    cbar.ax.set_title("mm", fontsize=16)
     ax.tick_params(labelsize=16)
     cbar.outline.set_visible(False)
     cbar.ax.tick_params(size=0, labelsize=16)
@@ -439,11 +477,43 @@ def make_sum(region, outDir, unit="mm"):
 
 
 def processAllFiles(region, allFiles, outDir, useOsmSingleFiles=False):
+    """
+    Processes all files in order to make single plots
+
+    Args:
+    -----
+    region: object
+     contains information about the region.
+    allFiles: list
+     List of filenames for the precipitation files with a 5-minute timestep,
+     for the specified product.
+    outDir: str
+     Direcotory where output will be stored.
+    useOsmSingleFiles: bool, optional
+     Whether to use OpenStreetMap data for the individual file maps. Default is False.
+    """
     for i in range(0, len(allFiles)):
         processSingleFile(region, allFiles, i, outDir, useOsmSingleFiles)
 
 
 def processSingleFile(region, allFiles, i, outDir, useOsmSingleFiles=False):
+    """
+    Processes single file in order to make single plots
+
+    Args:
+    -----
+    region: object
+     contains information about the region.
+    allFiles: list
+     List of filenames for the precipitation files with a 5-minute timestep,
+     for the specified product.
+    i: int
+     index of timestep that needs to be processed
+    outDir: str
+     Direcotory where output will be stored.
+    useOsmSingleFiles: bool, optional
+     Whether to use OpenStreetMap data for the individual file maps. Default is False.
+    """
     cmap, norm = _get_colours(COLOURS_AVG, bounds=BOUNDS_AVG)
 
     if not os.path.isdir(outDir + "/single-plots"):
@@ -563,6 +633,16 @@ def processSingleFile(region, allFiles, i, outDir, useOsmSingleFiles=False):
 
 
 def make_roiMap(region, outDir):
+    """
+    Generates a map of the region of interest. Default is False.
+
+    Args:
+    -----
+    region: object
+     contains information about the region.
+    outDir: str
+     Direcotory where output will be stored.    
+    """
     import osmnx as ox
     from pyproj import Transformer
     import math

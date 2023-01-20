@@ -15,10 +15,21 @@ from utils.transformation import fname2timestring, make_timeserie
 
 def make_summary_file(region, allFiles, outDir, POHfiles=False, sizes=[3, 5, 7, 9, 11, 15]):
     """
+    Creates a .txt file with a summary of the precipitation and POH of the specific period
+
     Args:
     -----
     region: object
-    contains information about the region
+     contains information about the region.
+    allFiles: list
+     List of filenames for the precipitation files with a 5-minute timestep,
+     for the specified product.
+    outDir: str
+     Direcotory where output will be stored.
+    POHfiles: bool, optional
+     Whether to include POH daily data in the analysis. Default is False.
+    sizes: list
+     list containing sizes to get nxn output within the region.
     """
     
     bname = region.bname
@@ -142,6 +153,17 @@ def make_summary_file(region, allFiles, outDir, POHfiles=False, sizes=[3, 5, 7, 
 ###############
 
 def make_netCDF_summary(region,outDir):
+    """
+    Creates a .nc file containing precipitation (intensity and total rainfall)
+     over region of interest and the whole domain
+
+    Args:
+    -----
+    region: object
+     contains information about the region.
+    outDir: str
+     Direcotory where output will be stored.
+    """
     fname = region.fbname
     bname = region.bname
 
@@ -304,6 +326,17 @@ def make_netCDF_summary(region,outDir):
 ###############
 
 def get_zoom_csv(region,outDir):
+    """
+    Creates a file containing total precipitation mm,
+    over the specific region
+
+    Args:
+    -----
+    region: object
+     contains information about the region.
+    outDir: str
+     Direcotory where output will be stored.
+    """
     bname = region.bname
 
     outFile = outDir + "/" + bname['eventCodeName'] + "-zoom.csv"
@@ -335,6 +368,17 @@ def get_zoom_csv(region,outDir):
         pdTotalSumRoiS.to_csv(roi_file)
 
 def get_sum_csv(region,outDir):
+    """
+    Creates a file containing total precipitation mm
+
+    Args:
+    -----
+    region: object
+     contains information about the region.
+    outDir: str
+     Direcotory where output will be stored.
+    """
+    
     totalSumS = np.around(region.totalSum, decimals=1)
     outFile = outDir + "/"+ region.bname['eventCodeName'] +"-sum.csv"
     totalSumS[totalSumS < 0] = np.NaN

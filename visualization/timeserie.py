@@ -16,6 +16,20 @@ from utils.transformation import nearest_5min, fname2timestring, make_timeserie
 ###############
 
 def make_ganglinie(region,allFiles,outDir):
+    """
+    Creates timeseries of precipitation intensity [mm/h]
+     and cumulative sum [mm] over region
+
+    Args:
+    -----
+    region: object
+     contains information about the region.
+    allFiles: list
+     List of filenames for the precipitation files with a 5-minute timestep,
+     for the specified product.
+    outDir: str
+     Direcotory where output will be stored.
+    """
     bname = region.bname
     fname = region.fbname
     timestamps = np.array(list(map(fname2timestring, allFiles)))
@@ -84,6 +98,21 @@ def make_ganglinie(region,allFiles,outDir):
 ###############
 
 def make_POH_series(region,allFiles,Dir):
+    """
+    Creates timeseries of probability of hail and if 
+    present hail size extracted from crowdsource data
+
+    Args:
+    -----
+    region: object
+     contains information about the region.
+    allFiles: list
+     List of filenames for the precipitation files with a 5-minute timestep,
+     for the specified product.
+    outDir: str
+     Direcotory where output will be stored.
+    """
+    
     bname = region.bname
     fname = region.fbname
     allFiles = np.sort(allFiles)

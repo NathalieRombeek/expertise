@@ -14,7 +14,7 @@ def retrieve_input_data(
     start_date,
     end_date,
     file_dir,
-    product="RZC",
+    prd="RZC",
     get_daily_POH=False,
     get_single_POH=False,
 ):
@@ -24,10 +24,10 @@ def retrieve_input_data(
     Args:
     -----
     start_time: datetime
-     The start date for which to retrieve the data.
+     The start date and time for which to generate the expertise. 
     endtime: datetime
-     The end date for which to retrieve the data.
-    product: str
+     The end date and time for which to generate the expertise.
+    prd: str
      precipitation product that will be retrieved, either RZC or CPC
     file_dir: str
      The main directory where the retrieved data will be saved
@@ -54,7 +54,7 @@ def retrieve_input_data(
     if not os.path.exists(sub_dir):
         os.makedirs(sub_dir)
 
-    retrieve_precip(timeserie, product, sub_dir)
+    retrieve_precip(timeserie, prd, sub_dir)
 
     if get_daily_POH:
         hail_path = os.path.join(sub_dir, "POH/")
@@ -74,8 +74,8 @@ def retrieve_precip(timeserie, prd, dir):
     Args:
     -----
     timeserie: list, datetime
-     List with the dates with a 5-min timestep for which to retrieve the precipitation data
-    product: str
+     List containing a timeserie with all times for which to retrieve the precipitation data
+    prd: str
      Precipitation product that will be retrieved, either RZC or CPC
     dir: str
      The directory where the precipitation data should be saved
@@ -137,7 +137,7 @@ def retrieve_POH(timeserie, dir, single_POH=False):
     Args:
     -----
     timeserie: list, datetime
-     List with the dates with a 5-min timestep for which to retrieve the precipitation data
+     List containing a timeserie with all times for which to retrieve the POH data
     dir: str
      The directory where the POH data should be saved
     single_POH: bool, optional
@@ -185,7 +185,7 @@ def retrieve_hail_crowdsource(timeserie, dir, transform=True):
     Args:
     -----
     timeserie: list, datetime
-     The date for which to retrieve the crowdsource data.
+     List containing a timeserie with all times for which to retrieve the crowdsource data
     dir: str
      The directory where the crowdsource data should be saved.
     transform: bool, optional
