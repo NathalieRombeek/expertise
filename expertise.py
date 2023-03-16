@@ -5,6 +5,7 @@ from tools.main_expertise import make_expertise
 
 DIR = os.path.abspath(os.path.dirname(__file__))
 
+
 def run_expertise(
     start_time,
     end_time,
@@ -22,7 +23,7 @@ def run_expertise(
     Args:
     -----
     start_time: datetime
-     The start date and time for which to generate the expertise. 
+     The start date and time for which to generate the expertise.
     endtime: datetime
      The end date and time for which to generate the expertise.
     product: str
@@ -31,7 +32,9 @@ def run_expertise(
      The directory where the data is stored and where the output will be saved.
     archive: str
      Path to where all the input data is stored and retrieved from.
-     Recommend to either use: "/store/msrad/radar/swiss/" or "/repos/repos_prod/radar/swiss/"
+     It accepts both "/store/msrad/radar/swiss/" or "/repos/repos_prod/radar/swiss/"
+     or a local folder containing input files in {prd}{YYDOY}.zip or {YYDOY}_crowdsource.prd 
+     (for hail crowdsource) data.
     name: str, optional
      Name of region of interest. Default is "Carrerabach".
     regionRectangle: list, optional
@@ -81,8 +84,12 @@ def run_expertise(
     # 1. Retrieve input
 
     # 1a. Retrieve and extract from meteoswiss environment or CSCS
-    if archive.startswith("/store/msrad/radar/swiss") or archive.startswith("/repos/repos_prod/radar"):
-        print('Data is extracted from either MeteoSwiss environment or CSCS environment')
+    if archive.startswith("/store/msrad/radar/swiss") or archive.startswith(
+        "/repos/repos_prod/radar"
+    ):
+        print(
+            "Data is extracted from either MeteoSwiss environment or CSCS environment"
+        )
         outDir = retrieve_input_data(
             start_time,
             end_time,
@@ -101,10 +108,9 @@ def run_expertise(
             input_dir=archive,
             output_dir=file_dir,
             get_daily_POH=POHfiles,
-            get_single_POH=POHSingleFiles)
+            get_single_POH=POHSingleFiles,
+        )
         print("zip files from a given path are used")
-        
-
 
     os.chdir(outDir)
 
