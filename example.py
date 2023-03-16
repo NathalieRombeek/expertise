@@ -17,7 +17,7 @@ run_expertise(
     end_date,
     product,
     file_dir="../example", #path where output needs to be stored
-    archive="/store/msrad/radar/swiss/", #path where input is stored
+    archive="/store/msrad/radar/swiss/", #path where input is stored (or use local path containg .zip and optionally .prd file)
     name="Carrerabach",
     regionRectangle=[2739000, 2746000, 1178000, 1185000],
     rg_args=rain_gauges,
