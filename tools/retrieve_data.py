@@ -53,7 +53,7 @@ def retrieve_input_data(
     start_time = str(start_date.strftime("%y%j%H%M"))
     
 
-    sub_dir = os.path.join(file_dir, start_time + "_saettele/")
+    sub_dir = os.path.join(file_dir, start_time + "_output/")
     if not os.path.exists(sub_dir):
         os.makedirs(sub_dir)
 
@@ -307,7 +307,7 @@ def access_local_data(start_date,end_date,prd,input_dir,output_dir,get_daily_POH
 
     start_time = str(start_date.strftime("%y%j%H%M")) 
 
-    sub_dir = os.path.join(output_dir, start_time + "_saettele/")
+    sub_dir = os.path.join(output_dir, start_time + "_output/")
     if not os.path.exists(sub_dir):
         os.makedirs(sub_dir)
 
