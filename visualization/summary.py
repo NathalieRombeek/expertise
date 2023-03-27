@@ -253,11 +253,15 @@ def make_netCDF_summary(region,outDir):
         dom_sum.long_name = "Total rainfall during day"
         dom_sum.units = "mm"
         dom_sum[:] = np.around(np.nansum(tot_domain / 12, axis=2), decimals=2)
-
+        
         # group with basin
+        Y_coord = list(range(region.rectangle[0] + 500, region.rectangle[1] + 500, 1000))
+        X_coord = list(range(region.rectangle[2] + 500, region.rectangle[3] + 500, 1000))
+        Y, X = np.meshgrid(Y_coord, X_coord)
+
         basin = ncfile.createGroup(f"{region.name}")
-        basin.createDimension("x", 7)
-        basin.createDimension("y", 7)
+        basin.createDimension("x", len(X_coord))
+        basin.createDimension("y", len(Y_coord))
         basin.createDimension(
             "time",
         )
@@ -286,10 +290,6 @@ def make_netCDF_summary(region,outDir):
         y_dim.long_name = "y-coordinate in Swiss coordinate system"
         x_dim.units = "km"
         y_dim.units = "km"
-
-        Y_coord = list(range(region.rectangle[0] + 500, region.rectangle[1] + 500, 1000))
-        X_coord = list(range(region.rectangle[2] + 500, region.rectangle[3] + 500, 1000))
-        Y, X = np.meshgrid(Y_coord, X_coord)
 
         y_dim[:] = Y
         x_dim[:] = X
