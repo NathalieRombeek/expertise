@@ -70,7 +70,7 @@ def make_expertise(
     ###   Directories   ###
     #######################
 
-    outDir = os.path.join(dir, "Carrerabach")
+    outDir = os.path.join(dir, name)
     os.chdir(dir)
     if not os.path.isdir(outDir):
         os.makedirs(outDir)
