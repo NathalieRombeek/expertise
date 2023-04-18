@@ -136,6 +136,7 @@ def make_summary_file(region, allFiles, outDir, POHfiles=False, sizes=[3, 5, 7, 
         intensities = np.column_stack((timestampsoneline, intensityOverTime))
         cumsum = np.around(region.sumOverTime, decimals=1)
         roiData = np.column_stack((timestampsoneline, intensityOverTime, cumsum))
+        
         np.savetxt(
             summary_file,
             roiData,
@@ -147,6 +148,7 @@ def make_summary_file(region, allFiles, outDir, POHfiles=False, sizes=[3, 5, 7, 
         summary_file.write(
             "\nPrecipitation intensity and sum over time for region " + region.name + "\n"
         )
+        summary_file.close()
 
 ###############
 # netCDF
