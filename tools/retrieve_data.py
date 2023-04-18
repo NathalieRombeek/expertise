@@ -208,12 +208,15 @@ def _unzip_daily_POH(src,out_dir):
             if fileName.endswith("2400VL.845.h5"):
                 zipObject.extract(fileName, out_dir)
 
-def _unzip_single_POH(src,base_name,out_dir):    
+def _unzip_single_POH(src,base_name,out_dir):
+    hail_dir = os.path.join(out_dir,"SingleFiles")
+    if not os.path.exists(hail_dir):
+        os.makedirs(hail_dir)    
     with zipfile.ZipFile(src, "r") as zipObject:
         files = zipObject.namelist()
         filtered_files = [file for file in files if any(date in file for date in base_name)]
         for fileName in filtered_files:
-            zipObject.extract(fileName,out_dir)    
+            zipObject.extract(fileName,hail_dir)    
 
 def retrieve_hail_crowdsource(timeserie, dir, transform=True):
     """
@@ -336,7 +339,7 @@ def access_local_data(start_date,end_date,prd,input_dir,output_dir,get_daily_POH
             input_dPOH = os.path.join(input_dir, f"dBZCH{YYDOY}.zip")
             _unzip_daily_POH(input_dPOH,hail_path)
         if get_single_POH:
-            input_sPOH = os.path.join(input_dir, f"dBZCH{YYDOY}.zip")
+            input_sPOH = os.path.join(input_dir, f"BZC{YYDOY}.zip")
             _unzip_single_POH(input_sPOH,base_name,hail_path)
             crs_path = os.path.join(input_dir,f"HQX{YYDOY}0000.prd")
             if os.path.isfile(crs_path):
