@@ -82,14 +82,17 @@ def make_expertise(
     # step 1 open all files
     allFiles = open_data.get_precip_files(dir, prd)
     allFiles = np.sort(allFiles)
-
+    print("step 1 open files completed")
+    
     # step 2 extract precipitation from files
     Region = region.RegionInfo(allFiles,name=name,regionRectangle=regionRectangle)
     Region.fetch_precip_data(dir)
+    print("step 2a extract precipitation completed")
 
     # step 2b - optional - extract hail data
     if POHfiles:
         Region.fetch_POH_data(dir, POHSingleFiles)
+        print("step 2b extract POHfiles completed")
 
     # step 3 get precipitation plots and csv files
     precipfields.make_avg_zoom(Region, outDir, useOsm=useOsm)
@@ -98,6 +101,7 @@ def make_expertise(
     )  # define raingauges
     precipfields.make_sum(Region, outDir)
     summary.get_zoom_csv(Region, outDir)
+    print("step 3a make precipitation plots completed")
 
     # step 3b - optional - get single precipitation files
     if singleFiles:
@@ -105,20 +109,26 @@ def make_expertise(
         precipfields.processAllFiles(
             Region, allFiles, outDir, useOsmSingleFiles=useOsmSingleFiles
         )
+        print("step 3b make single precpitation plots completed")
 
     # step 4 get precipitation timeseries
     timeserie.make_ganglinie(Region, allFiles, outDir)
+    print("step 4a make precipitation timeseries completed")
 
     # step 4b - optional - get POH timeseries
     if POHfiles and POHSingleFiles:
         if np.count_nonzero(~np.isnan(Region.POH_domain)) != 0:
-            timeserie.make_POH_series()
+            timeserie.make_POH_series(Region,allFiles,dir)
+            print("step 4b make POH timeseries completed")
+        else:
+            print("No hail in this region")
 
     # step 5 get summary files
     summary.make_summary_file(Region, allFiles, outDir, POHfiles=POHfiles)
     summary.make_netCDF_summary(Region, outDir)
     summary.get_zoom_csv(Region, outDir)
     summary.get_sum_csv(Region, outDir)
+    print("steps 5 make summary files completed")
 
     # step 6a - optional
     if roiMap:
