@@ -128,22 +128,18 @@ def make_expertise(
     summary.make_netCDF_summary(Region, outDir)
     summary.get_zoom_csv(Region, outDir)
     summary.get_sum_csv(Region, outDir)
-    print("steps 5 make summary files completed")
+    print("step 5 make summary files completed")
 
     # step 6a - optional
     if roiMap:
-        print("roi Map package osmnx not installed...")
         precipfields.make_roiMap(Region, outDir)
 
     # step 6b - optional - visibility map
     if visibMap:
         from visualization import visibility
-
         visibility.make_visibMap(Region, outDir)
 
-    # step 6c - optional - ? -
+    # step 6c - optional - kml file
     if make_kml_file:
         from visualization import geographic
-
-        print("unsupported driver...")
         geographic.make_kml_file(Region)
