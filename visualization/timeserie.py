@@ -5,6 +5,7 @@ import os
 import numpy as np
 from math import floor
 import matplotlib.pyplot as plt
+import re
 import pandas as pd
 import subprocess
 from glob import glob
@@ -118,10 +119,13 @@ def make_POH_series(region,allFiles,Dir):
     allFiles = np.sort(allFiles)
     timestamps = np.array(list(map(fname2timestring, allFiles)))
     all_POH_files = glob(os.path.join(Dir,"POH", "SingleFiles", "*.h5"))
-
     outDir = os.path.join(Dir,region.name)
     CrowdPath = os.path.join(Dir,"HailCrowdsource.csv")
-    outFile = outDir + "/" + bname['eventCodeName'] + "-POH-ganglinie.png"
+    outFile = outDir + "/" + bname['eventCodeName'] + "-POH-timeserie.png"
+
+    name = all_POH_files[0].rsplit('/', 1)[-1]
+    name_pattern = '(.*?)\d.*'  # pattern to match the name
+    name_product = re.search(name_pattern, name).group(1)
 
     fig, ax = plt.subplots(figsize=(17, 12))
     fig.suptitle(
@@ -142,7 +146,7 @@ def make_POH_series(region,allFiles,Dir):
         + ":"
         + fname['minute']
         + "UTC, product = "
-        + bname['prd'],
+        + name_product,
         fontsize=22,
     )
 
@@ -157,7 +161,9 @@ def make_POH_series(region,allFiles,Dir):
 
     ax.grid(axis="x")
     region.MaxPOHOverTime[np.isnan(region.MaxPOHOverTime) == True] = 0
-    ax.plot(region.MaxPOHOverTime, color="red", label="POH")
+    xrange = range(len(region.MaxPOHOverTime))
+
+    ax.bar(xrange,region.MaxPOHOverTime, color="red", label="POH")
     # ax.plot(timeserie, region.MaxPOHOverTime, color="red", label="POH")
 
 
@@ -188,7 +194,7 @@ def make_POH_series(region,allFiles,Dir):
             + ":"
             + fname['minute']
             + "UTC, product = "
-            + bname['prd'],
+            + name_product + " & crowdsource",
             fontsize=22,
         )
 
@@ -213,17 +219,17 @@ def make_POH_series(region,allFiles,Dir):
             markersize=10,
         )
 
-        if np.max(POHseries) in [1, 2, 3, 4]:
-            ax2.set_ylim([1, 4])
-            ax2.set_yticklabels(["0.5-0.8", "2.3", "3.15", ">4.3"])
+        if np.nanmax(POHseries) in [1, 2, 3, 4]:
+            ax2.set_ylim([0, 5])
+            ax2.set_yticklabels(["","0.5-0.8", "2.3", "3.15", ">4.3",""])
         else:
             ax2.set_ylim([10, 17])
             ax2.set_yticklabels(
                 ["", "<0.5", "0.5-0.8", "2.3", "3.15", "4.3", "6.5-6.8", ""]
             )
-            ax2.set_ylabel("\nMax estimated hail size (cm)", fontsize=18)
-            ax2.yaxis.set_tick_params(labelsize=14)
-            ax2.legend(fontsize=18, bbox_to_anchor=(1, 0.95), loc="best")
+        ax2.set_ylabel("\nMax estimated hail size (cm)", fontsize=18)
+        ax2.yaxis.set_tick_params(labelsize=14)
+        ax2.legend(fontsize=18, bbox_to_anchor=(1, 0.95), loc="best")
 
     ax.legend(fontsize=18, alignment="left", loc="best")
 
