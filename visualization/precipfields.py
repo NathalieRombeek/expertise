@@ -327,7 +327,7 @@ def make_sum_zoom(region, outDir, useOsm=False, *rg_kwargs):
     )
 
     for rain_gauge in rg_kwargs:
-        idx_col = find_nearest(BOUNDS_AVG, rain_gauge["depth"])
+        idx_col = find_nearest(bounds, rain_gauge["depth"])
         rg_col = COLOURS_AVG[idx_col]
         ax.scatter(
             rain_gauge["chx"],
