@@ -97,7 +97,7 @@ def make_expertise(
     # step 3 get precipitation plots and csv files
     precipfields.make_avg_zoom(Region, outDir, useOsm=useOsm)
     precipfields.make_sum_zoom(
-        Region, outDir, useOsm=useOsm, *rg_args
+        Region, outDir, useOsm, *rg_args
     )  # define raingauges
     precipfields.make_sum(Region, outDir)
     summary.get_zoom_csv(Region, outDir)
